@@ -285,8 +285,8 @@ CIMGUI_API void             igTreePop();
 CIMGUI_API void             igTreeAdvanceToLabelPos();
 CIMGUI_API float            igGetTreeNodeToLabelSpacing();
 CIMGUI_API void             igSetNextTreeNodeOpen(bool opened, ImGuiSetCond cond);
-CIMGUI_API bool             igCollapsingHeader(CONST char* label, ImGuiTreeNodeFlags flags);
-CIMGUI_API bool             igCollapsingHeaderEx(CONST char* label, bool* p_open, ImGuiTreeNodeFlags flags);
+CIMGUI_API bool             igCollapsingHeader(ImStr label, ImGuiTreeNodeFlags flags);
+CIMGUI_API bool             igCollapsingHeaderEx(ImStr label, bool* p_open, ImGuiTreeNodeFlags flags);
 
 // Widgets: Selectable / Lists
 CIMGUI_API bool             igSelectable(ImStr label, bool selected, ImGuiSelectableFlags flags, CONST struct ImVec2 size);
@@ -367,7 +367,7 @@ CIMGUI_API float            igGetTime();
 CIMGUI_API int              igGetFrameCount();
 CIMGUI_API CONST char*      igGetStyleColName(ImGuiCol idx);
 CIMGUI_API void             igCalcItemRectClosestPoint(struct ImVec2* pOut, CONST struct ImVec2 pos, bool on_edge, float outward);
-CIMGUI_API void             igCalcTextSize(struct ImVec2* pOut, CONST char* text, CONST char* text_end, bool hide_text_after_double_hash, float wrap_width);
+CIMGUI_API void             igCalcTextSize(struct ImVec2* pOut, ImStr text, bool hide_text_after_double_hash, float wrap_width);
 CIMGUI_API void             igCalcListClipping(int items_count, float items_height, int* out_items_display_start, int* out_items_display_end);
 
 CIMGUI_API bool             igBeginChildFrame(ImGuiID id, CONST struct ImVec2 size, ImGuiWindowFlags extra_flags);

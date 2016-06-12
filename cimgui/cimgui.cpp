@@ -1148,14 +1148,14 @@ CIMGUI_API void igSetNextTreeNodeOpen(bool opened, ImGuiSetCond cond)
     return ImGui::SetNextTreeNodeOpen(opened, cond);
 }
 
-CIMGUI_API bool igCollapsingHeader(CONST char* label, ImGuiTreeNodeFlags flags)
+CIMGUI_API bool igCollapsingHeader(ImStr label, ImGuiTreeNodeFlags flags)
 {
     return ImGui::CollapsingHeader(label, flags);
 }
 
-CIMGUI_API bool igCollapsingHeaderEx(CONST char* label, bool* p_open, ImGuiTreeNodeFlags flags)
+CIMGUI_API bool igCollapsingHeaderEx(ImStr label, bool* p_open, ImGuiTreeNodeFlags flags)
 {
-    return ImGui::CollapsingHeader(label,p_open,flags);
+    return ImGui::CollapsingHeader(label, p_open, flags);
 }
 
 // Widgets: Selectable / Lists
@@ -1542,9 +1542,9 @@ CIMGUI_API void igCalcItemRectClosestPoint(ImVec2* pOut, CONST ImVec2 pos, bool 
     *pOut = ImGui::CalcItemRectClosestPoint(pos,on_edge,outward);
 }
 
-CIMGUI_API void igCalcTextSize(ImVec2* pOut, CONST char* text, CONST char* text_end, bool hide_text_after_double_hash, float wrap_width)
+CIMGUI_API void igCalcTextSize(ImVec2* pOut, ImStr text, bool hide_text_after_double_hash, float wrap_width)
 {
-    *pOut = ImGui::CalcTextSize(text, text_end, hide_text_after_double_hash, wrap_width);
+    *pOut = ImGui::CalcTextSize(text, hide_text_after_double_hash, wrap_width);
 }
 
 CIMGUI_API void igCalcListClipping(int items_count, float items_height, int* out_items_display_start, int* out_items_display_end)
