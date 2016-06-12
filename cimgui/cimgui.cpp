@@ -164,6 +164,11 @@ CIMGUI_API void igSetNextWindowSize(CONST ImVec2 size, ImGuiSetCond cond)
     ImGui::SetNextWindowSize(size, cond);
 }
 
+CIMGUI_API void igSetNextWindowSizeConstraints(CONST struct ImVec2 size_min, CONST struct ImVec2 size_max, ImGuiSizeConstraintCallback custom_callback, void* custom_callback_data)
+{
+    ImGui::SetNextWindowSizeConstraints(size_min, size_max, custom_callback, custom_callback_data);   
+}
+
 CIMGUI_API void igSetNextWindowContentSize(CONST ImVec2 size)
 {
     ImGui::SetNextWindowContentSize(size);
@@ -426,9 +431,9 @@ CIMGUI_API bool igBeginPopup(ImStr str_id)
     return ImGui::BeginPopup(str_id);
 }
 
-CIMGUI_API bool igBeginPopupModal(ImStr name, bool* p_opened, ImGuiWindowFlags extra_flags)
+CIMGUI_API bool igBeginPopupModal(ImStr name, bool* p_open, ImGuiWindowFlags extra_flags)
 {
-    return ImGui::BeginPopupModal(name, p_opened, extra_flags);
+    return ImGui::BeginPopupModal(name, p_open, extra_flags);
 }
 
 CIMGUI_API bool igBeginPopupContextItem(ImStr str_id, int mouse_button)
@@ -457,15 +462,6 @@ CIMGUI_API void igCloseCurrentPopup()
 }
 
 // Layout
-CIMGUI_API void igBeginGroup()
-{
-    return ImGui::BeginGroup();
-}
-
-CIMGUI_API void igEndGroup()
-{
-    return ImGui::EndGroup();
-}
 
 CIMGUI_API void igSeparator()
 {
@@ -475,6 +471,11 @@ CIMGUI_API void igSeparator()
 CIMGUI_API void igSameLine(float pos_x, float spacing_w)
 {
     return ImGui::SameLine(pos_x, spacing_w);
+}
+
+CIMGUI_API void igNewLine()
+{
+    return ImGui::NewLine();
 }
 
 CIMGUI_API void igSpacing()
@@ -487,14 +488,24 @@ CIMGUI_API void igDummy(CONST ImVec2* size)
     return ImGui::Dummy(*size);
 }
 
-CIMGUI_API void igIndent()
+CIMGUI_API void igIndent(float indent_w)
 {
-    return ImGui::Indent();
+    return ImGui::Indent(indent_w);
 }
 
-CIMGUI_API void igUnindent()
+CIMGUI_API void igUnindent(float indent_w)
 {
-    return ImGui::Unindent();
+    return ImGui::Unindent(indent_w);
+}
+
+CIMGUI_API void igBeginGroup()
+{
+    return ImGui::BeginGroup();
+}
+
+CIMGUI_API void igEndGroup()
+{
+    return ImGui::EndGroup();
 }
 
 CIMGUI_API void igGetCursorPos(ImVec2* pOut)
@@ -792,11 +803,6 @@ CIMGUI_API bool igImageButton(ImTextureID user_texture_id, CONST ImVec2 size, CO
     return ImGui::ImageButton(user_texture_id, size, uv0, uv1, frame_padding, bg_col, tint_col);
 }
 
-CIMGUI_API bool igCollapsingHeader(ImStr label, ImStr str_id, bool display_frame, bool default_open)
-{
-    return ImGui::CollapsingHeader(label, str_id, display_frame, default_open);
-}
-
 CIMGUI_API bool igCheckbox(ImStr label, bool* v)
 {
     return ImGui::Checkbox(label, v);
@@ -1037,9 +1043,9 @@ CIMGUI_API bool igInputInt4(ImStr label, int v[4], ImGuiInputTextFlags extra_fla
 
 
 // Widgets: Trees
-CIMGUI_API bool igTreeNode(ImStr str_label_id)
+CIMGUI_API bool igTreeNode(ImStr label)
 {
-    return ImGui::TreeNode(str_label_id);
+    return ImGui::TreeNode(label);
 }
 
 CIMGUI_API bool igTreeNodeStr(ImStr str_id, CONST char* fmt, ...)
@@ -1077,6 +1083,41 @@ CIMGUI_API bool igTreeNodePtrV(CONST void* ptr_id, CONST char* fmt, va_list args
     return ImGui::TreeNodeV(ptr_id, fmt, args);
 }
 
+CIMGUI_API bool igTreeNodeEx(ImStr label, ImGuiTreeNodeFlags flags)
+{
+    return ImGui::TreeNodeEx(label, flags);
+}
+
+CIMGUI_API bool igTreeNodeExStr(ImStr str_id, ImGuiTreeNodeFlags flags, CONST char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    bool res = ImGui::TreeNodeExV(str_id, flags, fmt, args);
+    va_end(args);
+
+    return res;
+}
+
+CIMGUI_API bool igTreeNodeExPtr(CONST void* ptr_id, ImGuiTreeNodeFlags flags, CONST char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    bool res = ImGui::TreeNodeExV(ptr_id, flags, fmt, args);
+    va_end(args);
+
+    return res;
+}
+
+CIMGUI_API bool igTreeNodeExV(ImStr str_id, ImGuiTreeNodeFlags flags, CONST char* fmt, va_list args)
+{
+    return ImGui::TreeNodeExV(str_id,flags,fmt,args);
+}
+
+CIMGUI_API bool igTreeNodeExVPtr(CONST void* ptr_id, ImGuiTreeNodeFlags flags, CONST char* fmt, va_list args)
+{
+    return ImGui::TreeNodeExV(ptr_id,flags,fmt,args);
+}
+
 CIMGUI_API void igTreePushStr(ImStr str_id)
 {
     return ImGui::TreePush(str_id);
@@ -1092,9 +1133,29 @@ CIMGUI_API void igTreePop()
     return ImGui::TreePop();
 }
 
-CIMGUI_API void igSetNextTreeNodeOpened(bool opened, ImGuiSetCond cond)
+CIMGUI_API void igTreeAdvanceToLabelPos()
 {
-    return ImGui::SetNextTreeNodeOpened(opened, cond);
+    return ImGui::TreeAdvanceToLabelPos();
+}
+
+CIMGUI_API float igGetTreeNodeToLabelSpacing()
+{
+    return ImGui::GetTreeNodeToLabelSpacing();
+}
+
+CIMGUI_API void igSetNextTreeNodeOpen(bool opened, ImGuiSetCond cond)
+{
+    return ImGui::SetNextTreeNodeOpen(opened, cond);
+}
+
+CIMGUI_API bool igCollapsingHeader(CONST char* label, ImGuiTreeNodeFlags flags)
+{
+    return ImGui::CollapsingHeader(label, flags);
+}
+
+CIMGUI_API bool igCollapsingHeaderEx(CONST char* label, bool* p_open, ImGuiTreeNodeFlags flags)
+{
+    return ImGui::CollapsingHeader(label,p_open,flags);
 }
 
 // Widgets: Selectable / Lists
@@ -1241,6 +1302,16 @@ CIMGUI_API void igLogText(CONST char* fmt, ...)
     ImGui::LogText("%s",buffer);
 }
 
+CIMGUI_API void igPushClipRect(CONST struct ImVec2 clip_rect_min, CONST struct ImVec2 clip_rect_max, bool intersect_with_current_clip_rect)
+{
+    return ImGui::PushClipRect(clip_rect_min, clip_rect_max, intersect_with_current_clip_rect);
+}
+
+CIMGUI_API void igPopClipRect()
+{
+    return ImGui::PopClipRect();
+}
+
 // Utilities
 CIMGUI_API bool igIsItemHovered()
 {
@@ -1255,6 +1326,11 @@ CIMGUI_API bool igIsItemHoveredRect()
 CIMGUI_API bool igIsItemActive()
 {
     return ImGui::IsItemActive();
+}
+
+CIMGUI_API bool igIsItemClicked(int mouse_button)
+{
+    return ImGui::IsItemClicked(mouse_button);
 }
 
 CIMGUI_API bool igIsItemVisible()
@@ -1310,6 +1386,11 @@ CIMGUI_API bool igIsRootWindowFocused()
 CIMGUI_API bool igIsRootWindowOrAnyChildFocused()
 {
     return ImGui::IsRootWindowOrAnyChildFocused();
+}
+
+CIMGUI_API bool igIsRootWindowOrAnyChildHovered()
+{
+    return ImGui::IsRootWindowOrAnyChildHovered();
 }
 
 CIMGUI_API bool igIsRectVisible(CONST ImVec2 item_size)
@@ -1506,19 +1587,24 @@ CIMGUI_API CONST char* igGetVersion()
     return ImGui::GetVersion();
 }
 
-CIMGUI_API void* igGetInternalState()
+CIMGUI_API ImGuiContext* igCreateContext(void* (*malloc_fn)(size_t), void (*free_fn)(void*))
 {
-    return ImGui::GetInternalState();
+    return ImGui::CreateContext(malloc_fn,free_fn);
 }
 
-CIMGUI_API size_t igGetInternalStateSize()
+CIMGUI_API void igDestroyContext(ImGuiContext* ctx)
 {
-    return ImGui::GetInternalStateSize();
+    return ImGui::DestroyContext(ctx);
 }
 
-CIMGUI_API void igSetInternalState(void* state, bool construct)
+CIMGUI_API ImGuiContext* igGetCurrentContext()
 {
-    ImGui::SetInternalState(state, construct);
+    return ImGui::GetCurrentContext();
+}
+
+CIMGUI_API void igSetCurrentContext(ImGuiContext* ctx)
+{
+    return ImGui::SetCurrentContext(ctx);
 }
 
 CIMGUI_API void ImGuiIO_AddInputCharacter(unsigned short c)
