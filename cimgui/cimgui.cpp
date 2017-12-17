@@ -2,6 +2,10 @@
 #include "../imgui/imgui.h"
 #include "cimgui.h"
 
+// to use placement new
+#define IMGUI_DEFINE_PLACEMENT_NEW
+#include "../imgui/imgui_internal.h"
+
 CIMGUI_API ImGuiIO* igGetIO()
 {
     return &ImGui::GetIO();
@@ -57,11 +61,6 @@ IMGUI_API void igShowMetricsWindow(bool* opened)
 CIMGUI_API bool igBegin(ImStr name, bool* p_opened, ImGuiWindowFlags flags)
 {
     return ImGui::Begin(name, p_opened, flags);
-}
-
-CIMGUI_API bool igBegin2(ImStr name, bool* p_opened, CONST ImVec2 size_on_first_use, float bg_alpha, ImGuiWindowFlags flags)
-{
-    return ImGui::Begin(name, p_opened, size_on_first_use, bg_alpha, flags);
 }
 
 CIMGUI_API void igEnd()
@@ -144,29 +143,29 @@ CIMGUI_API bool igIsWindowCollapsed()
     return ImGui::IsWindowCollapsed();
 }
 
+CIMGUI_API bool igIsWindowAppearing()
+{
+	return ImGui::IsWindowAppearing();
+}
+
 CIMGUI_API void igSetWindowFontScale(float scale)
 {
     ImGui::SetWindowFontScale(scale);
 }
 
-CIMGUI_API void igSetNextWindowPos(CONST ImVec2 pos, ImGuiSetCond cond)
+CIMGUI_API void igSetNextWindowPos(CONST struct ImVec2 pos, ImGuiCond cond, CONST struct ImVec2 pivot)
 {
-    ImGui::SetNextWindowPos(pos, cond);
+    ImGui::SetNextWindowPos(pos, cond, pivot);
 }
 
-CIMGUI_API void igSetNextWindowPosCenter(ImGuiSetCond cond)
-{
-    ImGui::SetNextWindowPosCenter(cond);
-}
-
-CIMGUI_API void igSetNextWindowSize(CONST ImVec2 size, ImGuiSetCond cond)
+CIMGUI_API void igSetNextWindowSize(CONST ImVec2 size, ImGuiCond cond)
 {
     ImGui::SetNextWindowSize(size, cond);
 }
 
 CIMGUI_API void igSetNextWindowSizeConstraints(CONST struct ImVec2 size_min, CONST struct ImVec2 size_max, ImGuiSizeConstraintCallback custom_callback, void* custom_callback_data)
 {
-    ImGui::SetNextWindowSizeConstraints(size_min, size_max, custom_callback, custom_callback_data);   
+    ImGui::SetNextWindowSizeConstraints(size_min, size_max, custom_callback, custom_callback_data);
 }
 
 CIMGUI_API void igSetNextWindowContentSize(CONST ImVec2 size)
@@ -179,7 +178,7 @@ CIMGUI_API void igSetNextWindowContentWidth(float width)
     ImGui::SetNextWindowContentWidth(width);
 }
 
-CIMGUI_API void igSetNextWindowCollapsed(bool collapsed, ImGuiSetCond cond)
+CIMGUI_API void igSetNextWindowCollapsed(bool collapsed, ImGuiCond cond)
 {
     ImGui::SetNextWindowCollapsed(collapsed,cond);
 }
@@ -189,17 +188,17 @@ CIMGUI_API void igSetNextWindowFocus()
     ImGui::SetNextWindowFocus();
 }
 
-CIMGUI_API void igSetWindowPos(CONST ImVec2 pos, ImGuiSetCond cond)
+CIMGUI_API void igSetWindowPos(CONST ImVec2 pos, ImGuiCond cond)
 {
     ImGui::SetWindowPos(pos,cond);
 }
 
-CIMGUI_API void igSetWindowSize(CONST ImVec2 size, ImGuiSetCond cond)
+CIMGUI_API void igSetWindowSize(CONST ImVec2 size, ImGuiCond cond)
 {
     ImGui::SetWindowSize(size, cond);
 }
 
-CIMGUI_API void igSetWindowCollapsed(bool collapsed, ImGuiSetCond cond)
+CIMGUI_API void igSetWindowCollapsed(bool collapsed, ImGuiCond cond)
 {
     ImGui::SetWindowCollapsed(collapsed,cond);
 }
@@ -209,17 +208,17 @@ CIMGUI_API void igSetWindowFocus()
     ImGui::SetWindowFocus();
 }
 
-CIMGUI_API void igSetWindowPosByName(ImStr name, CONST ImVec2 pos, ImGuiSetCond cond)
+CIMGUI_API void igSetWindowPosByName(ImStr name, CONST ImVec2 pos, ImGuiCond cond)
 {
     ImGui::SetWindowPos(name,pos,cond);
 }
 
-CIMGUI_API void igSetWindowSize2(ImStr name, CONST ImVec2 size, ImGuiSetCond cond)
+CIMGUI_API void igSetWindowSize2(ImStr name, CONST ImVec2 size, ImGuiCond cond)
 {
     ImGui::SetWindowSize(name, size, cond);
 }
 
-CIMGUI_API void igSetWindowCollapsed2(ImStr name, bool collapsed, ImGuiSetCond cond)
+CIMGUI_API void igSetWindowCollapsed2(ImStr name, bool collapsed, ImGuiCond cond)
 {
     ImGui::SetWindowCollapsed(name, collapsed, cond);
 }
@@ -295,6 +294,11 @@ CIMGUI_API void igPopFont()
     return ImGui::PopFont();
 }
 
+CIMGUI_API void igPushStyleColorU32(ImGuiCol idx, ImU32 col)
+{
+    return ImGui::PushStyleColor(idx, col);
+}
+
 CIMGUI_API void igPushStyleColor(ImGuiCol idx, CONST ImVec4 col)
 {
     return ImGui::PushStyleColor(idx, col);
@@ -320,6 +324,11 @@ CIMGUI_API void igPopStyleVar(int count)
     return ImGui::PopStyleVar(count);
 }
 
+CIMGUI_API void igGetStyleColorVec4(ImVec4* pOut, ImGuiCol idx)
+{
+    *pOut = ImGui::GetStyleColorVec4(idx);
+}
+
 CIMGUI_API ImFont* igGetFont()
 {
     return ImGui::GetFont();
@@ -343,6 +352,11 @@ CIMGUI_API ImU32 igGetColorU32(ImGuiCol idx, float alpha_mul)
 CIMGUI_API ImU32 igGetColorU32Vec(CONST ImVec4* col)
 {
     return ImGui::GetColorU32(*col);
+}
+
+CIMGUI_API ImU32 igGetColorU32U32(ImU32 col)
+{
+    return ImGui::GetColorU32(col);
 }
 
 // Parameters stacks (current window)
@@ -426,6 +440,11 @@ CIMGUI_API void igOpenPopup(ImStr str_id)
     return ImGui::OpenPopup(str_id);
 }
 
+CIMGUI_API bool igOpenPopupOnItemClick(ImStr str_id, int mouse_button)
+{
+	return ImGui::OpenPopupOnItemClick(str_id, mouse_button);
+}
+
 CIMGUI_API bool igBeginPopup(ImStr str_id)
 {
     return ImGui::BeginPopup(str_id);
@@ -441,9 +460,9 @@ CIMGUI_API bool igBeginPopupContextItem(ImStr str_id, int mouse_button)
     return ImGui::BeginPopupContextItem(str_id, mouse_button);
 }
 
-CIMGUI_API bool igBeginPopupContextWindow(bool also_over_items, ImStr str_id, int mouse_button)
+CIMGUI_API bool igBeginPopupContextWindow(ImStr str_id, int mouse_button, bool also_over_items)
 {
-    return ImGui::BeginPopupContextWindow(also_over_items, str_id, mouse_button);
+    return ImGui::BeginPopupContextWindow(str_id, mouse_button, also_over_items);
 }
 
 CIMGUI_API bool igBeginPopupContextVoid(ImStr str_id, int mouse_button)
@@ -454,6 +473,11 @@ CIMGUI_API bool igBeginPopupContextVoid(ImStr str_id, int mouse_button)
 CIMGUI_API void igEndPopup()
 {
     return ImGui::EndPopup();
+}
+
+CIMGUI_API bool igIsPopupOpen(ImStr str_id)
+{
+    return ImGui::IsPopupOpen(str_id);
 }
 
 CIMGUI_API void igCloseCurrentPopup()
@@ -553,9 +577,9 @@ CIMGUI_API void igSetCursorScreenPos(CONST ImVec2 pos)
     return ImGui::SetCursorScreenPos(pos);
 }
 
-CIMGUI_API void igAlignFirstTextHeightToWidgets()
+CIMGUI_API void igAlignTextToFramePadding()
 {
-    return ImGui::AlignFirstTextHeightToWidgets();
+	return ImGui::AlignTextToFramePadding();
 }
 
 CIMGUI_API float igGetTextLineHeight()
@@ -590,6 +614,16 @@ CIMGUI_API int igGetColumnIndex()
     return ImGui::GetColumnIndex();
 }
 
+CIMGUI_API float igGetColumnWidth(int column_index)
+{
+    return ImGui::GetColumnWidth(column_index);
+}
+
+CIMGUI_API void igSetColumnWidth(int column_index, float width)
+{
+    return ImGui::SetColumnWidth(column_index, width);
+}
+
 CIMGUI_API float igGetColumnOffset(int column_index)
 {
     return ImGui::GetColumnOffset(column_index);
@@ -600,11 +634,6 @@ CIMGUI_API void igSetColumnOffset(int column_index, float offset_x)
     return ImGui::SetColumnOffset(column_index, offset_x);
 }
 
-CIMGUI_API float igGetColumnWidth(int column_index)
-{
-    return ImGui::GetColumnWidth(column_index);
-}
-
 CIMGUI_API int igGetColumnsCount()
 {
     return ImGui::GetColumnsCount();
@@ -613,43 +642,43 @@ CIMGUI_API int igGetColumnsCount()
 // ID scopes
 // If you are creating widgets in a loop you most likely want to push a unique identifier so ImGui can differentiate them
 // You can also use "##extra" within your widget name to distinguish them from each others (see 'Programmer Guide')
-CIMGUI_API void igPushIdStr(ImStr str_id)
+CIMGUI_API void igPushIDStr(ImStr str_id)
 {
     return ImGui::PushID(str_id);
 }
 
-CIMGUI_API void igPushIdStrRange(CONST char* str_begin, CONST char* str_end)
+CIMGUI_API void igPushIDStrRange(CONST char* str_begin, CONST char* str_end)
 {
     return ImGui::PushID(str_begin, str_end);
 }
 
 
-CIMGUI_API void igPushIdPtr(CONST void* ptr_id)
+CIMGUI_API void igPushIDPtr(CONST void* ptr_id)
 {
     return ImGui::PushID(ptr_id);
 }
 
-CIMGUI_API void igPushIdInt(int int_id)
+CIMGUI_API void igPushIDInt(int int_id)
 {
     return ImGui::PushID(int_id);
 }
 
-CIMGUI_API void igPopId()
+CIMGUI_API void igPopID()
 {
     return ImGui::PopID();
 }
 
-CIMGUI_API ImGuiID igGetIdStr(ImStr str_id)
+CIMGUI_API ImGuiID igGetIDStr(ImStr str_id)
 {
     return ImGui::GetID(str_id);
 }
 
-CIMGUI_API ImGuiID igGetIdStrRange(CONST char* str_begin, CONST char* str_end)
+CIMGUI_API ImGuiID igGetIDStrRange(CONST char* str_begin, CONST char* str_end)
 {
     return ImGui::GetID(str_begin, str_end);
 }
 
-CIMGUI_API ImGuiID igGetIdPtr(CONST void* ptr_id)
+CIMGUI_API ImGuiID igGetIDPtr(CONST void* ptr_id)
 {
     return ImGui::GetID(ptr_id);
 }
@@ -823,7 +852,7 @@ CIMGUI_API bool igRadioButton(ImStr label, int* v, int v_button)
     return ImGui::RadioButton(label, v, v_button);
 }
 
-CIMGUI_API bool igCombo(ImStr label, int* current_item, ImStr* items, int items_count, int height_in_items)
+CIMGUI_API bool igCombo(ImStr label, int* current_item, ImStr CONST* items, int items_count, int height_in_items)
 {
     return ImGui::Combo(label, current_item, items, items_count, height_in_items);
 }
@@ -836,26 +865,6 @@ CIMGUI_API bool igCombo2(ImStr label, int* current_item, CONST char* items_separ
 CIMGUI_API bool igCombo3(ImStr label, int* current_item, bool(*items_getter)(void* data, int idx, ImStr* out_text), void* data, int items_count, int height_in_items)
 {
     return ImGui::Combo(label, current_item, items_getter, data, items_count, height_in_items);
-}
-
-CIMGUI_API bool igColorButton(CONST ImVec4 col, bool small_height, bool outline_border)
-{
-    return ImGui::ColorButton(col, small_height, outline_border);
-}
-
-CIMGUI_API bool igColorEdit3(ImStr label, float col[3])
-{
-    return ImGui::ColorEdit3(label, col);
-}
-
-CIMGUI_API bool igColorEdit4(ImStr label, float col[4], bool show_alpha)
-{
-    return ImGui::ColorEdit4(label, col, show_alpha);
-}
-
-CIMGUI_API void igColorEditMode(ImGuiColorEditMode mode)
-{
-    return ImGui::ColorEditMode(mode);
 }
 
 CIMGUI_API void igPlotLines(ImStr label, CONST float* values, int values_count, int values_offset, ImStr overlay_text, float scale_min, float scale_max, ImVec2 graph_size, int stride)
@@ -891,7 +900,7 @@ CIMGUI_API bool igSliderFloat(ImStr label, float* v, float v_min, float v_max, I
 
 CIMGUI_API bool igSliderFloat2(ImStr label, float v[2], float v_min, float v_max, ImStr display_format, float power)
 {
-    return ImGui::SliderFloat(label, v, v_min, v_max, display_format, power);
+    return ImGui::SliderFloat2(label, v, v_min, v_max, display_format, power);
 }
 
 CIMGUI_API bool igSliderFloat3(ImStr label, float v[3], float v_min, float v_max, ImStr display_format, float power)
@@ -937,6 +946,37 @@ CIMGUI_API bool igVSliderFloat(ImStr label, CONST ImVec2 size, float* v, float v
 CIMGUI_API bool igVSliderInt(ImStr label, CONST ImVec2 size, int* v, int v_min, int v_max, ImStr display_format)
 {
     return ImGui::VSliderInt(label, size, v, v_min, v_max, display_format);
+}
+
+// Widgets: Color Editor/Picker (tip: the ColorEdit* functions have a little colored preview square that can be left-clicked to open a picker, and right-clicked to open an option menu.)
+CIMGUI_API bool igColorEdit3(ImStr label, float col[3], ImGuiColorEditFlags flags)
+{
+    return ImGui::ColorEdit3(label, col, flags);
+}
+
+CIMGUI_API bool igColorEdit4(ImStr label, float col[4], ImGuiColorEditFlags flags)
+{
+    return ImGui::ColorEdit4(label, col, flags);
+}
+
+CIMGUI_API bool igColorPicker3(ImStr label, float col[3], ImGuiColorEditFlags flags)
+{
+    return ImGui::ColorPicker3(label, col, flags);
+}
+
+CIMGUI_API bool igColorPicker4(ImStr label, float col[4], ImGuiColorEditFlags flags, CONST float* ref_col)
+{
+    return ImGui::ColorPicker4(label, col, flags, ref_col);
+}
+
+CIMGUI_API bool igColorButton(ImStr desc_id, CONST ImVec4 col, ImGuiColorEditFlags flags, CONST ImVec2 size)
+{
+    return ImGui::ColorButton(desc_id, col, flags, size);
+}
+
+CIMGUI_API void igSetColorEditOptions(ImGuiColorEditFlags flags)
+{
+    return ImGui::SetColorEditOptions(flags);
 }
 
 // Widgets: Drags (tip: ctrl+click on a drag box to input text)
@@ -1143,7 +1183,7 @@ CIMGUI_API float igGetTreeNodeToLabelSpacing()
     return ImGui::GetTreeNodeToLabelSpacing();
 }
 
-CIMGUI_API void igSetNextTreeNodeOpen(bool opened, ImGuiSetCond cond)
+CIMGUI_API void igSetNextTreeNodeOpen(bool opened, ImGuiCond cond)
 {
     return ImGui::SetNextTreeNodeOpen(opened, cond);
 }
@@ -1169,7 +1209,7 @@ CIMGUI_API bool igSelectableEx(ImStr label, bool* p_selected, ImGuiSelectableFla
     return ImGui::Selectable(label, p_selected, flags, size);
 }
 
-CIMGUI_API bool igListBox(ImStr label, int* current_item, ImStr* items, int items_count, int height_in_items)
+CIMGUI_API bool igListBox(ImStr label, int* current_item, ImStr CONST* items, int items_count, int height_in_items)
 {
     return ImGui::ListBox(label, current_item, items, items_count, height_in_items);
 }
@@ -1255,16 +1295,6 @@ CIMGUI_API void igValueFloat(ImStr prefix, float v, ImStr float_format)
     ImGui::Value(prefix,v,float_format);
 }
 
-CIMGUI_API void igValueColor(ImStr prefix, CONST ImVec4 v)
-{
-    ImGui::ValueColor(prefix,v);
-}
-
-CIMGUI_API void igValueColor2(ImStr prefix, unsigned int v)
-{
-    ImGui::ValueColor(prefix,v);
-}
-
 // Logging: all text output from interface is redirected to tty/file/clipboard. Tree nodes are automatically opened.
 CIMGUI_API void igLogToTTY(int max_depth)
 {
@@ -1296,7 +1326,7 @@ CIMGUI_API void igLogText(CONST char* fmt, ...)
     char buffer[256];
     va_list args;
     va_start(args, fmt);
-    snprintf(buffer, 256, fmt, args);
+    vsnprintf(buffer, 256, fmt, args);
     va_end(args);
 
     ImGui::LogText("%s",buffer);
@@ -1312,15 +1342,15 @@ CIMGUI_API void igPopClipRect()
     return ImGui::PopClipRect();
 }
 
-// Utilities
-CIMGUI_API bool igIsItemHovered()
+CIMGUI_API void igStyleColorsClassic(struct ImGuiStyle * dst)
 {
-    return ImGui::IsItemHovered();
+	ImGui::StyleColorsClassic(dst);
 }
 
-CIMGUI_API bool igIsItemHoveredRect()
+// Utilities
+CIMGUI_API bool igIsItemHovered(ImGuiHoveredFlags flags)
 {
-    return ImGui::IsItemHoveredRect();
+    return ImGui::IsItemHovered(flags);
 }
 
 CIMGUI_API bool igIsItemActive()
@@ -1368,14 +1398,14 @@ CIMGUI_API void igSetItemAllowOverlap()
     ImGui::SetItemAllowOverlap();
 }
 
-CIMGUI_API bool igIsWindowHovered()
-{
-    return ImGui::IsWindowHovered();
-}
-
 CIMGUI_API bool igIsWindowFocused()
 {
     return ImGui::IsWindowFocused();
+}
+
+CIMGUI_API bool igIsWindowHovered(ImGuiHoveredFlags)
+{
+    return ImGui::IsWindowHovered();
 }
 
 CIMGUI_API bool igIsRootWindowFocused()
@@ -1388,9 +1418,14 @@ CIMGUI_API bool igIsRootWindowOrAnyChildFocused()
     return ImGui::IsRootWindowOrAnyChildFocused();
 }
 
-CIMGUI_API bool igIsRootWindowOrAnyChildHovered()
+CIMGUI_API bool igIsRootWindowOrAnyChildHovered(ImGuiHoveredFlags flags)
 {
-    return ImGui::IsRootWindowOrAnyChildHovered();
+    return ImGui::IsRootWindowOrAnyChildHovered(flags);
+}
+
+CIMGUI_API bool igIsAnyWindowHovered()
+{
+    return ImGui::IsAnyWindowHovered();
 }
 
 CIMGUI_API bool igIsRectVisible(CONST ImVec2 item_size)
@@ -1398,24 +1433,34 @@ CIMGUI_API bool igIsRectVisible(CONST ImVec2 item_size)
     return ImGui::IsRectVisible(item_size);
 }
 
-CIMGUI_API int igGetKeyIndex(ImGuiKey key)
+CIMGUI_API bool igIsRectVisible2(CONST struct ImVec2* rect_min, CONST struct ImVec2* rect_max)
 {
-    return ImGui::GetKeyIndex(key);
+    return ImGui::IsRectVisible(*rect_min, *rect_max);
 }
 
-CIMGUI_API bool igIsKeyDown(int key_index)
+CIMGUI_API int igGetKeyIndex(ImGuiKey imgui_key)
 {
-    return ImGui::IsKeyDown(key_index);
+    return ImGui::GetKeyIndex(imgui_key);
 }
 
-CIMGUI_API bool igIsKeyPressed(int key_index, bool repeat)
+CIMGUI_API bool igIsKeyDown(int user_key_index)
 {
-    return ImGui::IsKeyPressed(key_index,repeat);
+    return ImGui::IsKeyDown(user_key_index);
 }
 
-CIMGUI_API bool igIsKeyReleased(int key_index)
+CIMGUI_API bool igIsKeyPressed(int user_key_index, bool repeat)
 {
-    return ImGui::IsKeyReleased(key_index);
+    return ImGui::IsKeyPressed(user_key_index,repeat);
+}
+
+CIMGUI_API bool igIsKeyReleased(int user_key_index)
+{
+    return ImGui::IsKeyReleased(user_key_index);
+}
+
+CIMGUI_API int igGetKeyPressedAmount(int key_index, float repeat_delay, float rate)
+{
+	return ImGui::GetKeyPressedAmount(key_index, repeat_delay, rate);
 }
 
 CIMGUI_API bool igIsMouseDown(int button)
@@ -1438,14 +1483,9 @@ CIMGUI_API bool igIsMouseReleased(int button)
     return ImGui::IsMouseReleased(button);
 }
 
-CIMGUI_API bool igIsMouseHoveringWindow()
+CIMGUI_API bool igIsMouseDragging(int button, float lock_threshold)
 {
-    return ImGui::IsMouseHoveringWindow();
-}
-
-CIMGUI_API bool igIsMouseHoveringAnyWindow()
-{
-    return ImGui::IsMouseHoveringAnyWindow();
+    return ImGui::IsMouseDragging(button,lock_threshold);
 }
 
 CIMGUI_API bool igIsMouseHoveringRect(CONST ImVec2 r_min, CONST ImVec2 r_max, bool clip)
@@ -1453,13 +1493,9 @@ CIMGUI_API bool igIsMouseHoveringRect(CONST ImVec2 r_min, CONST ImVec2 r_max, bo
     return ImGui::IsMouseHoveringRect(r_min,r_max,clip);
 }
 
-CIMGUI_API bool igIsMouseDragging(int button, float lock_threshold)
+CIMGUI_API bool igIsMousePosValid(CONST struct ImVec2 * mouse_pos)
 {
-    return ImGui::IsMouseDragging(button,lock_threshold);
-}
-CIMGUI_API bool igIsPosHoveringAnyWindow(CONST ImVec2 pos)
-{
-    return ImGui::IsPosHoveringAnyWindow(pos);
+	return ImGui::IsMousePosValid(mouse_pos);
 }
 
 CIMGUI_API void igGetMousePos(ImVec2* pOut)
@@ -1532,9 +1568,9 @@ CIMGUI_API int igGetFrameCount()
     return ImGui::GetFrameCount();
 }
 
-CIMGUI_API CONST char* igGetStyleColName(ImGuiCol idx)
+CIMGUI_API CONST char* igGetStyleColorName(ImGuiCol idx)
 {
-    return ImGui::GetStyleColName(idx);
+    return ImGui::GetStyleColorName(idx);
 }
 
 CIMGUI_API void igCalcItemRectClosestPoint(ImVec2* pOut, CONST ImVec2 pos, bool on_edge, float outward)
@@ -1620,4 +1656,204 @@ CIMGUI_API void ImGuiIO_AddInputCharactersUTF8(ImStr utf8_chars)
 CIMGUI_API void ImGuiIO_ClearInputCharacters()
 {
     return ImGui::GetIO().ClearInputCharacters();
+}
+
+CIMGUI_API struct ImGuiTextFilter* ImGuiTextFilter_Create(const char* default_filter)
+{
+    ImGuiTextFilter* filter = (ImGuiTextFilter*)ImGui::MemAlloc(sizeof(ImGuiTextFilter));
+    IM_PLACEMENT_NEW(filter) ImGuiTextFilter(default_filter);
+    return filter;
+}
+
+CIMGUI_API void ImGuiTextFilter_Destroy(struct ImGuiTextFilter* filter)
+{
+    filter->~ImGuiTextFilter();
+    ImGui::MemFree(filter);
+}
+
+CIMGUI_API void ImGuiTextFilter_Clear(struct ImGuiTextFilter* filter)
+{
+    filter->Clear();
+}
+
+CIMGUI_API bool ImGuiTextFilter_Draw(struct ImGuiTextFilter* filter, const char* label, float width)
+{
+    return filter->Draw(label, width);
+}
+
+CIMGUI_API bool ImGuiTextFilter_PassFilter(const struct ImGuiTextFilter* filter, const char* text, const char* text_end)
+{
+    return filter->PassFilter(text, text_end);
+}
+
+CIMGUI_API bool ImGuiTextFilter_IsActive(const struct ImGuiTextFilter* filter)
+{
+    return filter->IsActive();
+}
+
+CIMGUI_API void ImGuiTextFilter_Build(struct ImGuiTextFilter* filter)
+{
+    filter->Build();
+}
+
+CIMGUI_API const char* ImGuiTextFilter_GetInputBuf(struct ImGuiTextFilter* filter)
+{
+    return filter->InputBuf;
+}
+
+CIMGUI_API struct ImGuiTextBuffer* ImGuiTextBuffer_Create()
+{
+    ImGuiTextBuffer* buffer = (ImGuiTextBuffer*)ImGui::MemAlloc(sizeof(ImGuiTextBuffer));
+    IM_PLACEMENT_NEW(buffer) ImGuiTextBuffer();
+    return buffer;
+}
+
+CIMGUI_API void ImGuiTextBuffer_Destroy(struct ImGuiTextBuffer* buffer)
+{
+    buffer->~ImGuiTextBuffer();
+    ImGui::MemFree(buffer);
+}
+
+CIMGUI_API char ImGuiTextBuffer_index(struct ImGuiTextBuffer* buffer, int i)
+{
+    return (*buffer)[i];
+}
+
+CIMGUI_API const char* ImGuiTextBuffer_begin(const struct ImGuiTextBuffer* buffer)
+{
+    return buffer->begin();
+}
+
+CIMGUI_API const char* ImGuiTextBuffer_end(const struct ImGuiTextBuffer* buffer)
+{
+    return buffer->end();
+}
+
+CIMGUI_API int ImGuiTextBuffer_size(const struct ImGuiTextBuffer* buffer)
+{
+    return buffer->size();
+}
+
+CIMGUI_API bool ImGuiTextBuffer_empty(struct ImGuiTextBuffer* buffer)
+{
+    return buffer->empty();
+}
+
+CIMGUI_API void ImGuiTextBuffer_clear(struct ImGuiTextBuffer* buffer)
+{
+    buffer->clear();
+}
+
+CIMGUI_API const char* ImGuiTextBuffer_c_str(const struct ImGuiTextBuffer* buffer)
+{
+    return buffer->c_str();
+}
+
+CIMGUI_API void ImGuiTextBuffer_append(struct ImGuiTextBuffer* buffer, const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    buffer->appendv(fmt, args);
+    va_end(args);
+}
+
+CIMGUI_API void ImGuiTextBuffer_appendv(struct ImGuiTextBuffer* buffer, const char* fmt, va_list args)
+{
+    buffer->appendv(fmt, args);
+}
+
+CIMGUI_API struct ImGuiStorage* ImGuiStorage_Create() {
+    ImGuiStorage* storage = (ImGuiStorage*)ImGui::MemAlloc(sizeof(ImGuiStorage));
+    IM_PLACEMENT_NEW(storage) ImGuiStorage();
+    return storage;
+}
+
+CIMGUI_API void ImGuiStorage_Destroy(struct ImGuiStorage* storage) {
+    storage->~ImGuiStorage();
+    ImGui::MemFree(storage);
+}
+
+CIMGUI_API void ImGuiStorage_Clear(struct ImGuiStorage* storage)
+{
+    storage->Clear();
+}
+
+CIMGUI_API int ImGuiStorage_GetInt(struct ImGuiStorage* storage, ImGuiID key, int default_val)
+{
+    return storage->GetInt(key, default_val);
+}
+
+CIMGUI_API void ImGuiStorage_SetInt(struct ImGuiStorage* storage, ImGuiID key, int val)
+{
+    storage->SetInt(key, val);
+}
+
+CIMGUI_API bool ImGuiStorage_GetBool(struct ImGuiStorage* storage, ImGuiID key, bool default_val)
+{
+    return storage->GetBool(key, default_val);
+}
+
+CIMGUI_API void ImGuiStorage_SetBool(struct ImGuiStorage* storage, ImGuiID key, bool val)
+{
+    storage->SetBool(key, val);
+}
+
+CIMGUI_API float ImGuiStorage_GetFloat(struct ImGuiStorage* storage, ImGuiID key, float default_val)
+{
+    return storage->GetFloat(key, default_val);
+}
+
+CIMGUI_API void ImGuiStorage_SetFloat(struct ImGuiStorage* storage, ImGuiID key, float val)
+{
+    storage->SetFloat(key, val);
+}
+
+CIMGUI_API void* ImGuiStorage_GetVoidPtr(struct ImGuiStorage* storage, ImGuiID key)
+{
+    return storage->GetVoidPtr(key);
+}
+
+CIMGUI_API void ImGuiStorage_SetVoidPtr(struct ImGuiStorage* storage, ImGuiID key, void* val)
+{
+    storage->SetVoidPtr(key, val);
+}
+
+CIMGUI_API int* ImGuiStorage_GetIntRef(struct ImGuiStorage* storage, ImGuiID key, int default_val)
+{
+    return storage->GetIntRef(key, default_val);
+}
+
+CIMGUI_API bool* ImGuiStorage_GetBoolRef(struct ImGuiStorage* storage, ImGuiID key, bool default_val)
+{
+    return storage->GetBoolRef(key, default_val);
+}
+
+CIMGUI_API float* ImGuiStorage_GetFloatRef(struct ImGuiStorage* storage, ImGuiID key, float default_val)
+{
+    return storage->GetFloatRef(key, default_val);
+}
+
+CIMGUI_API void** ImGuiStorage_GetVoidPtrRef(struct ImGuiStorage* storage, ImGuiID key, void* default_val)
+{
+    return storage->GetVoidPtrRef(key, default_val);
+}
+
+CIMGUI_API void ImGuiStorage_SetAllInt(struct ImGuiStorage* storage, int val)
+{
+    storage->SetAllInt(val);
+}
+
+CIMGUI_API void ImGuiTextEditCallbackData_DeleteChars(struct ImGuiTextEditCallbackData* data, int pos, int bytes_count)
+{
+    data->DeleteChars(pos, bytes_count);
+}
+
+CIMGUI_API void ImGuiTextEditCallbackData_InsertChars(struct ImGuiTextEditCallbackData* data, int pos, const char* text, const char* text_end)
+{
+    data->InsertChars(pos, text, text_end);
+}
+
+CIMGUI_API bool ImGuiTextEditCallbackData_HasSelection(struct ImGuiTextEditCallbackData* data)
+{
+    return data->HasSelection();
 }
